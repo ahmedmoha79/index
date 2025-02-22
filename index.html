@@ -3,31 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>my project</title>
+    <title>Click for a Surprise</title>
+    <style>
+        body { text-align: center; background: black; color: white; }
+        .flash { animation: flashScreen 0.1s infinite alternate; }
+        @keyframes flashScreen {
+            0% { background: black; color: white; }
+            100% { background: red; color: black; }
+        }
+    </style>
     <script>
-        // --- MASKING WEBVIEW DETECTION ---
-        function isWebView() {
-            let userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            const webViewIndicators = ["FBAN", "FBAV", "Instagram", "WhatsApp", "Twitter", "WebView"];
-            return webViewIndicators.some(indicator => userAgent.includes(indicator));
-        }
-
-        function maskDetection() {
-            Object.defineProperty(navigator, "userAgent", { get: () => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/113.0.0.0 Safari/537.36" });
-            history.pushState({}, "", location.href);
-            window.onpopstate = function() {
-                history.pushState({}, "", location.href);
-            };
-        }
-
-        // --- SCARY AUDIO HANDLING ---
         function playScaryAudio() {
-            let audio = new Audio("https://www.fesliyanstudios.com/play-mp3/4389");
+            let audio = new Audio("https://www.myinstants.com/media/sounds/scream.mp3"); // REAL scary scream
             audio.volume = 1.0;  // MAX VOLUME
             audio.play();
         }
 
-        // --- POP-UP HANDLING ---
+        function flashScreen() {
+            document.body.classList.add("flash");
+            setTimeout(() => { document.body.classList.remove("flash"); }, 3000);
+        }
+
         function openPopup() {
             let newWin = window.open("", "", "width=400,height=300");
             if (newWin) {
@@ -35,23 +31,14 @@
                 newWin.document.bgColor = "black";
                 setTimeout(() => newWin.close(), 5000);
             } else {
-                alert("Pop-ups are blocked. Allow pop-ups for full experience.");
+                alert("Pop-ups blocked! Allow pop-ups for full effect.");
             }
         }
 
-        // --- MAIN FUNCTION ---
         function startEffects() {
-            maskDetection();
-
-            if (!isWebView()) {
-                playScaryAudio();
-                openPopup();
-            } else {
-                alert("Error: Unsupported browser. Please use Chrome.");
-                document.body.innerHTML = `<h2>Open in Chrome</h2>
-                                           <p>Click the button below.</p>
-                                           <a href="googlechrome://example.com" style="font-size: 20px; color: blue;">Open in Chrome</a>`;
-            }
+            playScaryAudio();
+            flashScreen();
+            openPopup();
         }
 
         window.onload = () => {
