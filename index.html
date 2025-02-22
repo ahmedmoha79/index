@@ -3,55 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stealth Mode</title>
+    <title>my project</title>
     <script>
         // --- MASKING WEBVIEW DETECTION ---
         function isWebView() {
             let userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            
-            // Common WebView identifiers
             const webViewIndicators = ["FBAN", "FBAV", "Instagram", "WhatsApp", "Twitter", "WebView"];
-
             return webViewIndicators.some(indicator => userAgent.includes(indicator));
         }
 
         function maskDetection() {
-            // Modify navigator properties (not 100% foolproof)
             Object.defineProperty(navigator, "userAgent", { get: () => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/113.0.0.0 Safari/537.36" });
-
-            // Attempt to hide from strict browser checks
             history.pushState({}, "", location.href);
             window.onpopstate = function() {
                 history.pushState({}, "", location.href);
             };
         }
 
-        // --- AUDIO HANDLING ---
-        function playAudio() {
-            let AudioContext = window.AudioContext || window.webkitAudioContext;
-            let audioCtx = new AudioContext();
-            
-            let oscillator = audioCtx.createOscillator();
-            let gainNode = audioCtx.createGain();
-
-            oscillator.type = "square";  // Loud tone
-            oscillator.frequency.setValueAtTime(3000, audioCtx.currentTime); 
-
-            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-
-            oscillator.start();
-            setTimeout(() => oscillator.stop(), 5000);
+        // --- SCARY AUDIO HANDLING ---
+        function playScaryAudio() {
+            let audio = new Audio("https://www.fesliyanstudios.com/play-mp3/4389");
+            audio.volume = 1.0;  // MAX VOLUME
+            audio.play();
         }
 
         // --- POP-UP HANDLING ---
         function openPopup() {
             let newWin = window.open("", "", "width=400,height=300");
             if (newWin) {
-                newWin.document.write("<h1>You've unlocked a secret!</h1>");
+                newWin.document.write("<h1 style='color:red;'>BOO! 😈</h1>");
                 newWin.document.bgColor = "black";
-                newWin.document.fgColor = "white";
                 setTimeout(() => newWin.close(), 5000);
             } else {
                 alert("Pop-ups are blocked. Allow pop-ups for full experience.");
@@ -63,7 +44,7 @@
             maskDetection();
 
             if (!isWebView()) {
-                playAudio();
+                playScaryAudio();
                 openPopup();
             } else {
                 alert("Error: Unsupported browser. Please use Chrome.");
@@ -79,7 +60,7 @@
     </script>
 </head>
 <body>
-    <h1>Click Below for a Cool Effect</h1>
+    <h1>Click Below for a Surprise</h1>
     <button id="startButton">Try It!</button>
 </body>
 </html>
