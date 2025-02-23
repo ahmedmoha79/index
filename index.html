@@ -5,7 +5,7 @@
     <style>
         * { margin: 0; padding: 0; }
         body { background: #000; overflow: hidden; }
-        #scareContainer { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; }
+        #scareContainer { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; }
         #scareImage { width: 100%; height: 100%; object-fit: cover; }
         button { 
             position: fixed; 
@@ -29,42 +29,27 @@
     </div>
 
     <script>
-        // Preload assets
-        const audio = new Audio('https://www.myinstants.com/media/sounds/scream.mp3');
-        const img = new Image();
+        let audio = new Audio('https://www.fesliyanstudios.com/play-mp3/4381'); // Use a direct-link audio source
+        let img = new Image();
         img.src = 'https://i.imgur.com/9rNaYMZ.jpg';
-        
-        // Core functionality
+
         function triggerScare() {
-            // Remove button immediately
+            // Remove button
             document.querySelector('button').remove();
-            
-            // Show fullscreen image
+
+            // Show fullscreen scare
             const container = document.getElementById('scareContainer');
             container.style.display = 'block';
-            
-            // Start audio with distortion
-            audio.volume = 1.0;
-            const context = new AudioContext();
-            const source = context.createMediaElementSource(audio);
-            const distortion = context.createWaveShaper();
-            
-            distortion.curve = new Float32Array([-1, 1]);
-            distortion.oversample = '4x';
-            
-            source.connect(distortion);
-            distortion.connect(context.destination);
-            
-            audio.play().catch(e => {
-                // Fallback if audio blocked
-                container.style.background = '#ff0000';
-            });
 
-            // Open fullscreen window
-            const newWindow = window.open('', '_blank', 
+            // Play horror sound
+            audio.volume = 1.0;
+            audio.play().catch(e => console.error("Audio failed", e));
+
+            // Open full-screen window (must be triggered by user action)
+            let newWindow = window.open('', '_blank', 
                 `width=${screen.width},height=${screen.height},top=0,left=0`);
             
-            if(newWindow) {
+            if (newWindow) {
                 newWindow.document.write(`
                     <html>
                         <head>
@@ -87,7 +72,7 @@
         }
 
         function blockKeys(e) {
-            if(e.key === 'Escape' || e.key === 'F1' || e.key === 'F12') {
+            if (["Escape", "F1", "F12"].includes(e.key)) {
                 e.preventDefault();
             }
         }
