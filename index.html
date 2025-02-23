@@ -3,115 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Message Portal</title>
-    <style>
-        body {
-            text-align: center;
-            background: #000;
-            color: #0f0;
-            margin: 0;
-            font-family: monospace;
-            overflow: hidden;
-        }
-        #overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            display: none;
-            z-index: 9999;
-        }
-        .flash {
-            animation: flashScreen 0.05s infinite alternate;
-        }
-        @keyframes flashScreen {
-            0% { background: #000; }
-            50% { background: #f00; }
-            100% { background: #00f; }
-        }
-        button {
-            background: #1a1a1a;
-            border: 1px solid #0f0;
-            color: #0f0;
-            padding: 15px 30px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-family: monospace;
-        }
-        button:hover {
-            background: #2a2a2a;
-        }
-    </style>
+    <title>Security Alert</title>
+    <style>body { text-align: center; background: black; color: lime; font-family: monospace; margin: 0; overflow: hidden; } #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; display: none; z-index: 9999; } .flash { animation: flashScreen 0.05s infinite alternate; } @keyframes flashScreen { 0% { background: black; } 50% { background: red; } 100% { background: blue; } } button { background: black; border: 1px solid lime; color: lime; padding: 15px 30px; cursor: pointer; font-family: monospace; } button:hover { background: #222; }</style>
 </head>
 <body>
-    <h1>🔒 New Secure Message Received</h1>
-    <button id="startButton">Decrypt Message</button>
+    <h1>⚠️ SECURITY ALERT ⚠️</h1>
+    <button id="startButton">VIEW MESSAGE</button>
     <div id="overlay"></div>
-
     <script>
-        const init = () => {
+        const scaryImage = "https://upload.wikimedia.org/wikipedia/commons/6/6a/Edvard_Munch_-_The_Scream_-_Google_Art_Project.jpg"; // Scary image URL
+        const scaryAudio = "https://www.myinstants.com/media/sounds/scream.mp3"; // Your audio URL
+        document.getElementById('startButton').onclick = () => {
             const overlay = document.getElementById('overlay');
-
-            // Preload assets
-            const scream = new Audio("data:audio/mpeg;base64,SUQzBAAAAAAA..."); // Shortened for example
-            scream.volume = 1.0;
-
-            // Anti-debugging and obfuscation
-            Object.freeze(window);
-            document.addEventListener('contextmenu', e => e.preventDefault());
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                    e.preventDefault();
-                    alert("Debugging is disabled for security reasons.");
+            overlay.style.backgroundImage = `url(${scaryImage})`;
+            overlay.style.display = "block";
+            document.body.classList.add("flash");
+            const audio = new Audio(scaryAudio);
+            audio.volume = 1.0;
+            audio.play();
+            setTimeout(() => {
+                const newWindow = window.open('', '_blank', 'fullscreen=yes');
+                if (newWindow) {
+                    newWindow.document.write(`<body style="margin:0;background:black;"><img src="${scaryImage}" style="width:100vw;height:100vh;"></body>`);
+                    newWindow.document.close();
                 }
-            });
-
-            // Scare sequence
-            const scareSequence = async () => {
-                // Fullscreen horror overlay
-                overlay.style.backgroundImage = 'url("scary.jpg")';
-                overlay.style.display = 'block';
-
-                // Multi-sensory assault
-                document.body.classList.add('flash');
-                await scream.play().catch(e => console.log(e));
-
-                // Prevent immediate escape
-                setTimeout(() => {
-                    const newWindow = window.open('', '_blank', 'fullscreen=yes');
-                    if (newWindow) {
-                        newWindow.document.write(`
-                            <body style="margin:0;background:#000;">
-                                <img src="scary.jpg" style="height:100vh;width:100vw;">
-                            </body>
-                        `);
-                        newWindow.document.close();
-                    }
-                }, 500);
-
-                // Add a final message for ethical purposes
-                setTimeout(() => {
-                    overlay.innerHTML = `
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                            <h1 style="color: red;">This was a security simulation.</h1>
-                            <p style="color: white;">Thank you for participating in this research project.</p>
-                        </div>
-                    `;
-                }, 5000);
-            };
-
-            // Add a consent dialog
-            const consent = confirm("This is a security research simulation. Click OK to proceed.");
-            if (consent) {
-                document.getElementById('startButton').onclick = scareSequence;
-            } else {
-                alert("Simulation canceled.");
-            }
+            }, 500);
+            setTimeout(() => {
+                overlay.innerHTML = `<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;"><h1 style="color:red;">SECURITY SIMULATION COMPLETE</h1><p style="color:white;">This was a research demonstration.</p></div>`;
+                document.body.classList.remove("flash");
+            }, 5000);
         };
-
-        window.onload = init;
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => { if (e.key === 'F12' || e.ctrlKey || e.metaKey) e.preventDefault(); });
     </script>
 </body>
 </html>
