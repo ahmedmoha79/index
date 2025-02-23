@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Message Portal</title>
     <style>
-        body { 
-            text-align: center; 
-            background: #000; 
-            color: #0f0; 
+        body {
+            text-align: center;
+            background: #000;
+            color: #0f0;
             margin: 0;
-            font-family: system-ui;
+            font-family: monospace;
+            overflow: hidden;
         }
         #overlay {
             position: fixed;
@@ -22,7 +23,7 @@
             display: none;
             z-index: 9999;
         }
-        .flash { 
+        .flash {
             animation: flashScreen 0.05s infinite alternate;
         }
         @keyframes flashScreen {
@@ -37,6 +38,7 @@
             padding: 15px 30px;
             cursor: pointer;
             transition: 0.3s;
+            font-family: monospace;
         }
         button:hover {
             background: #2a2a2a;
@@ -51,33 +53,62 @@
     <script>
         const init = () => {
             const overlay = document.getElementById('overlay');
-            
+
+            // Preload assets
+            const scream = new Audio("data:audio/mpeg;base64,SUQzBAAAAAAA..."); // Shortened for example
+            scream.volume = 1.0;
+
+            // Anti-debugging and obfuscation
+            Object.freeze(window);
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                    e.preventDefault();
+                    alert("Debugging is disabled for security reasons.");
+                }
+            });
+
+            // Scare sequence
             const scareSequence = async () => {
-                // Preload assets
-                const scream = new Audio("data:audio/mpeg;base64,SUQzBAAAAAAA..."); // Shortened for example
-                scream.volume = 1.0;
-                
                 // Fullscreen horror overlay
                 overlay.style.backgroundImage = 'url("scary.jpg")';
                 overlay.style.display = 'block';
-                
+
                 // Multi-sensory assault
                 document.body.classList.add('flash');
                 await scream.play().catch(e => console.log(e));
-                
+
                 // Prevent immediate escape
                 setTimeout(() => {
-                    window.open('', '_blank', 'fullscreen=yes').document.write(
-                        `<body style="margin:0;background:#000;"><img src="scary.jpg" style="height:100vh;width:100vw;">`
-                    );
+                    const newWindow = window.open('', '_blank', 'fullscreen=yes');
+                    if (newWindow) {
+                        newWindow.document.write(`
+                            <body style="margin:0;background:#000;">
+                                <img src="scary.jpg" style="height:100vh;width:100vw;">
+                            </body>
+                        `);
+                        newWindow.document.close();
+                    }
                 }, 500);
+
+                // Add a final message for ethical purposes
+                setTimeout(() => {
+                    overlay.innerHTML = `
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                            <h1 style="color: red;">This was a security simulation.</h1>
+                            <p style="color: white;">Thank you for participating in this research project.</p>
+                        </div>
+                    `;
+                }, 5000);
             };
 
-            // Anti-debugging measures
-            document.addEventListener('contextmenu', e => e.preventDefault());
-            Object.freeze(window);
-            
-            document.getElementById('startButton').onclick = scareSequence;
+            // Add a consent dialog
+            const consent = confirm("This is a security research simulation. Click OK to proceed.");
+            if (consent) {
+                document.getElementById('startButton').onclick = scareSequence;
+            } else {
+                alert("Simulation canceled.");
+            }
         };
 
         window.onload = init;
