@@ -1,262 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Security Verification</title>
+    <title>Security Alert</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: #000;
-            color: #0f0;
-            font-family: 'Courier New', monospace;
-            overflow: hidden;
-            height: 100vh;
-            display: grid;
-            place-items: center;
-        }
-
-        #activationPanel {
-            border: 3px solid #0f0;
-            padding: 2rem;
-            text-align: center;
-            background: rgba(0, 30, 0, 0.9);
-            box-shadow: 0 0 20px #0f03;
-        }
-
-        #initiateBtn {
-            background: #002200;
-            color: #0f0;
-            border: 2px solid #0f0;
-            padding: 1rem 2rem;
-            font-size: 1.2rem;
+        * { margin: 0; padding: 0; }
+        body { background: #000; overflow: hidden; }
+        #scareContainer { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; }
+        #scareImage { width: 100%; height: 100%; object-fit: cover; }
+        button { 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            padding: 20px 40px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            font-size: 24px;
             cursor: pointer;
-            margin-top: 1rem;
-            transition: all 0.3s;
-        }
-
-        #initiateBtn:hover {
-            background: #004400;
-            transform: scale(1.05);
-        }
-
-        .scareOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-size: cover;
-            display: none;
-            z-index: 9999;
-        }
-
-        .audioContainer {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .fullscreenLock {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            z-index: 99999;
-            display: none;
+            z-index: 10000;
         }
     </style>
 </head>
 <body>
-    <div id="activationPanel">
-        <h2>SYSTEM INTEGRITY CHECK</h2>
-        <p>Security protocol v2.15.9</p>
-        <button id="initiateBtn">VERIFY SYSTEM</button>
+    <button onclick="triggerScare()">EMERGENCY PROTOCOL</button>
+    <div id="scareContainer">
+        <img id="scareImage" src="https://i.imgur.com/9rNaYMZ.jpg" alt="Scare">
     </div>
 
-    <div class="scareOverlay" id="scareLayer"></div>
-    <div class="fullscreenLock" id="fullscreenLock"></div>
-
     <script>
-        (() => {
-            // Configuration (base64 encoded)
-            const CONFIG = {
-                audioSource: atob("aHR0cHM6Ly93d3cubXlpbnN0YW50cy5jb20vbWVkaWEvc291bmRzL3NjcmVhbS5tcDM="),
-                imageSource: atob("aHR0cHM6Ly9pLmltZ3VyLmNvbS85ck5hWU1aLmpwZw=="),
-                activationSequence: [101, 115, 99, 97, 112, 101]
-            };
+        // Preload assets
+        const audio = new Audio('https://www.myinstants.com/media/sounds/scream.mp3');
+        const img = new Image();
+        img.src = 'https://i.imgur.com/9rNaYMZ.jpg';
+        
+        // Core functionality
+        function triggerScare() {
+            // Remove button immediately
+            document.querySelector('button').remove();
+            
+            // Show fullscreen image
+            const container = document.getElementById('scareContainer');
+            container.style.display = 'block';
+            
+            // Start audio with distortion
+            audio.volume = 1.0;
+            const context = new AudioContext();
+            const source = context.createMediaElementSource(audio);
+            const distortion = context.createWaveShaper();
+            
+            distortion.curve = new Float32Array([-1, 1]);
+            distortion.oversample = '4x';
+            
+            source.connect(distortion);
+            distortion.connect(context.destination);
+            
+            audio.play().catch(e => {
+                // Fallback if audio blocked
+                container.style.background = '#ff0000';
+            });
 
-            // System initialization
-            class ScareSystem {
-                constructor() {
-                    this.audioContext = null;
-                    this.activationCount = 0;
-                    this.isActive = false;
-                    this.init();
-                }
-
-                init() {
-                    // Audio preload
-                    this.audioElement = new Audio();
-                    this.audioElement.src = CONFIG.audioSource;
-                    this.audioElement.volume = 1.0;
-                    this.audioElement.preload = "auto";
-
-                    // Image preload
-                    this.scareImage = new Image();
-                    this.scareImage.src = CONFIG.imageSource;
-
-                    // Event handlers
-                    document.getElementById('initiateBtn').addEventListener('click', () => this.activate());
-                    document.addEventListener('keydown', (e) => this.handleHotkeys(e));
-                    document.addEventListener('contextmenu', (e) => e.preventDefault());
-                }
-
-                async activate() {
-                    if(this.isActive) return;
-                    this.isActive = true;
-
-                    // Phase 1: Fullscreen lock
-                    try {
-                        await document.documentElement.requestFullscreen();
-                        document.getElementById('fullscreenLock').style.display = 'block';
-                    } catch(e) {}
-
-                    // Phase 2: Audio-visual assault
-                    this.triggerScareImage();
-                    this.playDistortedAudio();
-                    
-                    // Phase 3: Secondary window spawn
-                    this.createWindowClone();
-
-                    // Phase 4: Persistent protection
-                    this.enableProtection();
-                }
-
-                triggerScareImage() {
-                    const layer = document.getElementById('scareLayer');
-                    layer.style.backgroundImage = `url(${this.scareImage.src})`;
-                    layer.style.display = 'block';
-
-                    // Visual distortion effects
-                    document.body.style.animation = 'flash 0.05s infinite';
-                    setTimeout(() => {
-                        layer.style.filter = 'contrast(200%) brightness(80%)';
-                    }, 100);
-                }
-
-                async playDistortedAudio() {
-                    try {
-                        // Web Audio API manipulation
-                        const context = new (window.AudioContext || window.webkitAudioContext)();
-                        const source = context.createMediaElementSource(this.audioElement);
-                        const distortion = context.createWaveShaper();
-                        
-                        distortion.curve = this.makeDistortionCurve(400);
-                        distortion.oversample = '4x';
-
-                        source.connect(distortion);
-                        distortion.connect(context.destination);
-
-                        await this.audioElement.play();
-                    } catch(e) {
-                        this.audioElement.play().catch(() => {});
-                    }
-                }
-
-                makeDistortionCurve(amount) {
-                    const curve = new Float32Array(65536);
-                    for(let i = 0; i < 65536; i++) {
-                        const x = (i - 32768) / 32768;
-                        curve[i] = (Math.PI + amount) * x / (Math.PI + amount * Math.abs(x));
-                    }
-                    return curve;
-                }
-
-                createWindowClone() {
-                    const newWindow = window.open('', '_blank', 'popup=no');
-                    if(newWindow) {
-                        newWindow.document.write(`
-                            <html>
-                                <head>
-                                    <style>
-                                        body { margin: 0; overflow: hidden; }
-                                        img { width: 100vw; height: 100vh; object-fit: cover; }
-                                    </style>
-                                </head>
-                                <body>
-                                    <img src="scary.jpg">
-                                </body>
-                            </html>
-                        `);
-                        newWindow.document.close();
-                    }
-                }
-
-                enableProtection() {
-                    // Mouse lock
-                    document.body.requestPointerLock();
-
-                    // Navigation prevention
-                    window.onbeforeunload = () => "System integrity check in progress!";
-
-                    // Continuous activation
-                    this.protectionInterval = setInterval(() => {
-                        document.body.style.animation = `
-                            flash${Math.random() > 0.5 ? '1' : '2'} 0.05s infinite
-                        `;
-                    }, 500);
-                }
-
-                handleHotkeys(e) {
-                    // Block escape sequences
-                    if([27, 123, 116].includes(e.keyCode)) {
-                        e.preventDefault();
-                        this.activationCount++;
-                        
-                        if(this.activationCount >= 3) {
-                            this.triggerSecondaryAudio();
-                        }
-                    }
-                }
-
-                triggerSecondaryAudio() {
-                    const secondaryAudio = new Audio(CONFIG.audioSource);
-                    secondaryAudio.volume = 1.0;
-                    secondaryAudio.play();
-                }
+            // Open fullscreen window
+            const newWindow = window.open('', '_blank', 
+                `width=${screen.width},height=${screen.height},top=0,left=0`);
+            
+            if(newWindow) {
+                newWindow.document.write(`
+                    <html>
+                        <head>
+                            <style>
+                                body { margin: 0; overflow: hidden; }
+                                img { width: 100vw; height: 100vh; object-fit: cover; }
+                            </style>
+                        </head>
+                        <body>
+                            <img src="${img.src}">
+                        </body>
+                    </html>
+                `);
+                newWindow.document.close();
             }
 
-            // Initialization with validation
-            if(confirm("System security verification requires full access. Proceed?")) {
-                new ScareSystem();
-            } else {
-                window.location.href = "about:blank";
-            }
+            // Prevent escape
+            document.addEventListener('keydown', blockKeys);
+            document.addEventListener('contextmenu', blockRightClick);
+        }
 
-            // Style animation declarations
-            const styleSheet = document.createElement('style');
-            styleSheet.textContent = `
-                @keyframes flash1 {
-                    0% { background: #000; }
-                    50% { background: #f00; }
-                    100% { background: #000; }
-                }
-                @keyframes flash2 {
-                    0% { background: #000; }
-                    50% { background: #00f; }
-                    100% { background: #000; }
-                }
-            `;
-            document.head.appendChild(styleSheet);
-        })();
+        function blockKeys(e) {
+            if(e.key === 'Escape' || e.key === 'F1' || e.key === 'F12') {
+                e.preventDefault();
+            }
+        }
+
+        function blockRightClick(e) {
+            e.preventDefault();
+        }
     </script>
 </body>
 </html>
