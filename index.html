@@ -1,159 +1,55 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="ScreenOrientation" content="autoRotate:disabled">
-    <title>🔒 System Security Update</title>
+    <title>System Alert</title>
     <style>
-        :root { --bg: #0a0a0f; --text: #00ff9d; --alert: #ff0033; }
-        body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; overflow: hidden; }
-        .crt::before { content: ""; position: fixed; top:0; left:0; right:0; bottom:0; background: linear-gradient(rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.25) 50%); z-index: 9999; pointer-events: none; }
-        .scanline { position: fixed; width: 100%; height: 4px; background: rgba(0,255,0,0.3); animation: scan 4s linear infinite; }
-        @keyframes scan { 0% { top: -4px; } 100% { top: 100%; } }
-        #main { display: grid; place-items: center; height: 100vh; text-align: center; }
-        .alert-box { background: #000; border: 3px solid var(--alert); padding: 2rem; max-width: 600px; position: relative; }
-        .glitch-text { animation: glitch 1s infinite; text-shadow: 2px 2px var(--alert); }
-        @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px,2px); } 40% { transform: translate(-2px,-2px); } 60% { transform: translate(2px,2px); } 80% { transform: translate(2px,-2px); } 100% { transform: translate(0); } }
-        #triggerBtn { background: #001122; border: 2px solid var(--alert); color: var(--text); padding: 1rem 2rem; font-size: 1.2rem; cursor: pointer; transition: 0.3s; margin-top: 2rem; }
-        #triggerBtn:hover { background: var(--alert); }
-        .hidden { display: none !important; }
-        #overlay { position: fixed; inset: 0; background: #000; z-index: 9998; opacity: 0; transition: 0.5s; }
-        .jumpscare { position: fixed; inset: 0; background-size: cover; z-index: 10000; animation: scare 0.3s forwards; }
-        @keyframes scare { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        body { margin: 0; padding: 0; overflow: hidden; background: black; }
+        #scareImage { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; }
+        button { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 9999; padding: 20px; background: red; color: white; border: none; cursor: pointer; }
     </style>
 </head>
-<body class="crt">
-    <div class="scanline"></div>
-    <div id="main">
-        <div class="alert-box">
-            <h1 class="glitch-text">⚠️ CRITICAL SECURITY ALERT ⚠️</h1>
-            <p>System integrity compromised. Immediate action required.</p>
-            <div id="sysinfo" style="text-align: left; margin: 2rem 0;">
-                <div>🛑 Suspicious network activity detected</div>
-                <div>🛑 Memory corruption in progress</div>
-                <div>🛑 Unauthorized data exfiltration</div>
-            </div>
-            <button id="triggerBtn">INITIATE EMERGENCY PROTOCOL</button>
-        </div>
-    </div>
-    <div id="overlay"></div>
+<body>
+    <button onclick="triggerScare()">EMERGENCY PROTOCOL</button>
+    <img id="scareImage" src="https://i.ibb.co/0jqW6hW/scary-face.jpg" alt="Jump Scare">
 
     <script>
-        (function(){
-            // Obfuscated configuration
-            const CFG = {
-                AUDIO: atob("aHR0cHM6Ly93d3cubXlpbnN0YW50cy5jb20vbWVkaWEvc291bmRzL3NjcmVhbS5tcDM="),
-                IMAGE: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/...", // Base64 encoded image
-                DELAYS: [300, 500, 800],
-                TEXTS: ["ROOT ACCESS GRANTED", "MEMORY DUMP INITIATED", "ENCRYPTION FAILED"]
-            };
+        const audio = new Audio("https://www.myinstants.com/media/sounds/scream.mp3");
+        audio.volume = 1.0;
 
-            // Anti-tampering measures
-            Object.defineProperty(window, 'console', { value: {}, writable: false });
-            document.addEventListener('visibilitychange', () => document.title = "⚠️ SYSTEM COMPROMISED ⚠️");
-            window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
-
-            // Core functionality
-            class ScareEngine {
-                constructor() {
-                    this.audio = new Audio(CFG.AUDIO);
-                    this.audio.volume = 1.0;
-                    this.stage = 0;
-                    this.initTriggers();
-                }
-
-                initTriggers() {
-                    document.getElementById('triggerBtn').addEventListener('click', () => this.beginSequence());
-                    window.addEventListener('mousemove', () => this.addParanoia());
-                    window.addEventListener('keydown', (e) => this.blockShortcuts(e));
-                }
-
-                async beginSequence() {
-                    try {
-                        await this.audio.play();
-                        this.showJumpScare();
-                        this.startVisualDistortion();
-                        this.createPopupWindow();
-                        this.showFinalWarning();
-                    } catch(e) { this.fallbackActivation(); }
-                }
-
-                showJumpScare() {
-                    const scareDiv = document.createElement('div');
-                    scareDiv.className = 'jumpscare';
-                    scareDiv.style.backgroundImage = `url(${CFG.IMAGE})`;
-                    document.body.appendChild(scareDiv);
-                    setTimeout(() => scareDiv.remove(), 2000);
-                }
-
-                startVisualDistortion() {
-                    document.body.classList.add('glitch-text');
-                    this.createFakeSystemWarning();
-                    this.triggerGeolocation();
-                }
-
-                createPopupWindow() {
-                    const pw = window.open('', '_blank', 'fullscreen=yes');
-                    if(pw) {
-                        pw.document.write(`<body style="margin:0;background:#000;"><img src="${scary.jpg}" style="width:100vw;height:100vh;"></body>`);
-                        pw.document.close();
-                    }
-                }
-
-                showFinalWarning() {
-                    setTimeout(() => {
-                        document.getElementById('main').innerHTML = `
-                            <div class="alert-box">
-                                <h1>SECURITY SIMULATION COMPLETE</h1>
-                                <p>This demonstration shows critical vulnerabilities in:</p>
-                                <ul>
-                                    <li>Auto-play permissions</li>
-                                    <li>Fullscreen API abuse</li>
-                                    <li>Social engineering vectors</li>
-                                </ul>
-                            </div>
-                        `;
-                    }, 5000);
-                }
-
-                addParanoia() {
-                    if(this.stage < CFG.DELAYS.length) {
-                        setTimeout(() => {
-                            document.getElementById('sysinfo').innerHTML += `<div>🛡 ${CFG.TEXTS[this.stage]}</div>`;
-                            this.stage++;
-                        }, CFG.DELAYS[this.stage]);
-                    }
-                }
-
-                blockShortcuts(e) {
-                    if(e.ctrlKey || e.metaKey || e.key === 'F12') {
-                        e.preventDefault();
-                        this.createFakeSystemWarning();
-                    }
-                }
-
-                createFakeSystemWarning() {
-                    alert("[SYSTEM] Security protocol violation detected!");
-                }
-
-                triggerGeolocation() {
-                    navigator.geolocation.getCurrentPosition(() => {}, () => {});
-                }
-
-                fallbackActivation() {
-                    document.body.style.background = 'red';
-                    window.location.href = 'data:text/html,<body style="background:black;color:red;font-family:monospace;padding:2rem;"><h1>SECURITY BREACH</h1></body>';
-                }
+        function triggerScare() {
+            // Immediate visual trigger
+            document.body.style.backgroundColor = "black";
+            const img = document.getElementById('scareImage');
+            img.style.display = 'block';
+            
+            // Audio blast
+            audio.play().catch(e => console.error(e));
+            
+            // Fullscreen manipulation
+            document.documentElement.requestFullscreen().catch(e => {});
+            
+            // Mouse lock
+            document.body.requestPointerLock();
+            
+            // Secondary window
+            const w = window.open('', '_blank', 'width='+screen.width+',height='+screen.height);
+            if(w) {
+                w.document.write(`<body style="margin:0;"><img src="${img.src}" style="width:100vw;height:100vh;"></body>`);
+                w.document.close();
             }
+            
+            // Cleanup after 5 seconds
+            setTimeout(() => {
+                img.style.display = 'none';
+                document.exitFullscreen();
+                if(w) w.close();
+            }, 5000);
+        }
 
-            // Initialize with consent check
-            if(confirm("This security simulation demonstrates potential vulnerabilities. Proceed?")) {
-                new ScareEngine();
-            } else {
-                document.body.innerHTML = '<h1>SIMULATION CANCELED</h1>';
-            }
-        })();
+        // Block escape attempts
+        document.addEventListener('fullscreenchange', () => {
+            if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+        });
     </script>
 </body>
 </html>
